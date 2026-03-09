@@ -1,32 +1,37 @@
-import { APITester } from "./APITester";
+import { useState, useEffect } from "react";
 import "./index.css";
+import { HomePage } from "./pages/home";
+import { LoginPage } from "./pages/login";
+import { AppPage } from "./pages/app";
 
-import logo from "./logo.svg";
-import reactLogo from "./react.svg";
+function getRoute() {
+  return window.location.pathname;
+}
 
 export function App() {
-  return (
-    <div className="max-w-7xl mx-auto p-8 text-center relative z-10">
-      <div className="flex justify-center items-center gap-8 mb-8">
-        <img
-          src={logo}
-          alt="Bun Logo"
-          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#646cffaa] scale-120"
-        />
-        <img
-          src={reactLogo}
-          alt="React Logo"
-          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa] animate-[spin_20s_linear_infinite]"
-        />
-      </div>
+  const [route, setRoute] = useState(getRoute());
 
-      <h1 className="text-5xl font-bold my-4 leading-tight">Bun + React</h1>
-      <p>
-        Edit <code className="bg-[#1a1a1a] px-2 py-1 rounded font-mono">src/App.tsx</code> and save to test HMR
-      </p>
-      <APITester />
-    </div>
-  );
+  useEffect(() => {
+    const onPopState = () => setRoute(getRoute());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  const navigate = (path: string) => {
+    window.history.pushState({}, "", path);
+    setRoute(path);
+  };
+
+  if (route.startsWith("/app")) {
+    return <AppPage />;
+  }
+
+  switch (route) {
+    case "/login":
+      return <LoginPage navigate={navigate} />;
+    default:
+      return <HomePage navigate={navigate} />;
+  }
 }
 
 export default App;
